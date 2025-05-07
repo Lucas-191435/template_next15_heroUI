@@ -9,6 +9,10 @@ const config = {
   ],
   theme: {
     extend: {
+       colors: {
+       
+        // Adicione mais cores conforme necessário
+      },
       fontFamily: {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
