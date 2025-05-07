@@ -1,10 +1,10 @@
 "use client";
-import { useState } from "react";
+// import { useState } from "react";
 import { Form, Input, Button } from "@heroui/react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import {InferType} from "yup";
+import { InferType } from "yup";
 const formats = [
   "image/jpeg",
   "image/png",
@@ -16,11 +16,13 @@ const maxSize = 1024 * 1024 * 5; // 5MB
 const schema = yup.object().shape({
   name: yup.string().required("Campo obrigatório"),
   password: yup.string().required("Campo obrigatório"),
-  validatePassword: yup.string().oneOf(
-    [yup.ref("password")], 'A senha não bate').required("Campo obrigatório"),
+  validatePassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "A senha não bate")
+    .required("Campo obrigatório"),
   email: yup.string().email("Email inválido").required("Campo obrigatório"),
   avatarProfile: yup
-    .mixed()
+    .mixed<FileList>()
     .required("Campo obrigatório")
     .test("fileFormat", "Formato inválido", (value: any) => {
       return value && value.length > 0 ? formats.includes(value[0].type) : true;
@@ -33,8 +35,8 @@ const schema = yup.object().shape({
 type FormType = InferType<typeof schema>;
 export default function Home() {
   const {
-    control,
-    setValue,
+    // control,
+    // setValue,
     register,
     handleSubmit,
     formState: { errors },
@@ -45,7 +47,8 @@ export default function Home() {
 
   const onSubmit = (data: FormType) => {
     const formData = new FormData();
-    formData.append("nome", data.name);
+
+    formData.append("name", data.name);
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("avatarProfile", data.avatarProfile[0]);
