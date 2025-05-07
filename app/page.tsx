@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { InferType } from "yup";
+import api from "@/services/api";
 const formats = [
   "image/jpeg",
   "image/png",
@@ -24,11 +25,13 @@ const schema = yup.object().shape({
   avatarProfile: yup
     .mixed<FileList>()
     .required("Campo obrigatório")
-    .test("fileFormat", "Formato inválido", (value: any) => {
-      return value && value.length > 0 ? formats.includes(value[0].type) : true;
+    .test("fileFormat", "Formato inválido", (value) => {
+      if (!value || value.length === 0) return false; // força falha se vazio
+      return formats.includes(value[0].type);
     })
-    .test("fileSize", "Tamanho máximo de 5MB", (value: any) => {
-      return value && value.length > 0 ? value[0].size <= maxSize : true;
+    .test("fileSize", "Tamanho máximo de 5MB", (value) => {
+      if (!value || value.length === 0) return false; // força falha se vazio
+      return value[0].size <= maxSize;
     }),
 });
 
@@ -45,13 +48,24 @@ export default function Home() {
     mode: "onSubmit",
   });
 
-  const onSubmit = (data: FormType) => {
-    const formData = new FormData();
+  const onSubmit = async (data: FormType) => {
+    try {
+      const formData = new FormData();
 
-    formData.append("name", data.name);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("avatarProfile", data.avatarProfile[0]);
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("avatarProfile", data.avatarProfile[0]);
+
+      const res = await api.post("/user", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+    }
   };
 
   return (
