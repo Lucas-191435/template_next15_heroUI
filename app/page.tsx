@@ -26,11 +26,13 @@ const schema = yup.object().shape({
     .mixed<FileList>()
     .required("Campo obrigatório")
     .test("fileFormat", "Formato inválido", (value) => {
-      if (!value || value.length === 0) return false; // força falha se vazio
+      if (!value || value.length === 0) return false;
+
       return formats.includes(value[0].type);
     })
     .test("fileSize", "Tamanho máximo de 5MB", (value) => {
-      if (!value || value.length === 0) return false; // força falha se vazio
+      if (!value || value.length === 0) return false;
+
       return value[0].size <= maxSize;
     }),
 });
