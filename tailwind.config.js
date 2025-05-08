@@ -10,7 +10,7 @@ const config = {
   theme: {
     extend: {
        colors: {
-       
+        red: "#f23"
         // Adicione mais cores conforme necessário
       },
       fontFamily: {
