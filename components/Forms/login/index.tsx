@@ -33,7 +33,7 @@ export default function FormLogin() {
       });
 
       // Redirect to the home page or any other page
-      router.push("/");
+      router.push("/home");
     } catch (err: any) {
       const msn = err.response.data.message;
 
