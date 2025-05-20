@@ -4,18 +4,18 @@ import { Form, Input, Button } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { FormType, FormBaseSchema } from "./formBaseSchema";
- 
+import { FormType, FormCreateUser } from "./formBaseSchema";
+
 import api from "@/services/api";
 import { showToast } from "@/utils/toastMessage";
 
-export default function FormBase() {
+export default function FormCreate() {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(FormBaseSchema),
+    resolver: yupResolver(FormCreateUser),
     mode: "onSubmit",
   });
 

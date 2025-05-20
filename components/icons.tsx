@@ -45,6 +45,26 @@ export const DiscordIcon: React.FC<IconSvgProps> = ({
   );
 };
 
+export const LinkedInIcon: React.FC<IconSvgProps> = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}) => (
+  <svg
+    height={size || height}
+    viewBox="0 0 24 24"
+    width={size || width}
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      fill="currentColor"
+      d="M4.983 3.5C4.983 4.88 3.878 6 2.5 6S0 4.88 0 3.5 1.105 1 2.5 1s2.483 1.12 2.483 2.5zM.44 8.25h4.12v12.75H.44V8.25zm7.07 0h3.94v1.74h.06c.55-1.04 1.9-2.14 3.91-2.14 4.18 0 4.95 2.75 4.95 6.32v7.83h-4.13v-6.94c0-1.66-.03-3.79-2.3-3.79-2.3 0-2.65 1.8-2.65 3.66v7.07H7.51V8.25z"
+    />
+  </svg>
+);
+
 export const TwitterIcon: React.FC<IconSvgProps> = ({
   size = 24,
   width,
