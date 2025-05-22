@@ -2,12 +2,3 @@
 @tailwind components;
 @tailwind utilities;
 
-html.light {
-    --colors-background: #f3f4f6; /* gray-100 */
-    --colors-primary: #2563eb;    /* blue-600 */
-  }
-  
-  html.dark {
-    --colors-background: #1f2937; /* gray-800 */
-    --colors-primary: #14b8a6;    /* teal-500 */
-  }

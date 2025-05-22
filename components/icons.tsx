@@ -59,8 +59,8 @@ export const LinkedInIcon: React.FC<IconSvgProps> = ({
     {...props}
   >
     <path
-      fill="currentColor"
       d="M4.983 3.5C4.983 4.88 3.878 6 2.5 6S0 4.88 0 3.5 1.105 1 2.5 1s2.483 1.12 2.483 2.5zM.44 8.25h4.12v12.75H.44V8.25zm7.07 0h3.94v1.74h.06c.55-1.04 1.9-2.14 3.91-2.14 4.18 0 4.95 2.75 4.95 6.32v7.83h-4.13v-6.94c0-1.66-.03-3.79-2.3-3.79-2.3 0-2.65 1.8-2.65 3.66v7.07H7.51V8.25z"
+      fill="currentColor"
     />
   </svg>
 );
@@ -203,5 +203,32 @@ export const SearchIcon = (props: IconSvgProps) => (
       strokeLinejoin="round"
       strokeWidth="2"
     />
+  </svg>
+);
+
+export const ListIcon = (props: IconSvgProps) => (
+  <svg
+    fill="currentColor"
+    height="24"
+    width="24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect height="2" rx="1" width="18" x="3" y="5" />
+    <rect height="2" rx="1" width="18" x="3" y="11" />
+    <rect height="2" rx="1" width="18" x="3" y="17" />
+  </svg>
+);
+
+export const ListCardsIcon = (props: IconSvgProps) => (
+  <svg
+    fill="currentColor"
+    height="24"
+    width="24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect height="8" rx="1" width="8" x="3" y="3" />
+    <rect height="8" rx="1" width="8" x="13" y="3" />
+    <rect height="8" rx="1" width="8" x="3" y="13" />
+    <rect height="8" rx="1" width="8" x="13" y="13" />
   </svg>
 );
