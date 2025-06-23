@@ -1,48 +1,76 @@
 "use client";
 import clsx from "clsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Pagination } from "@heroui/pagination";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+
 
 import { title } from "@/components/primitives";
-import CardPoke from "@/components/List/Card";
 import { ListCardsIcon, ListIcon, SearchIcon } from "@/components/icons";
 import ItemListPoke from "@/components/List/ItemList";
+import api from "@/services/api";
+import CardPoke from "@/components/List/Card";
+import { IPokemon, PokemonItem } from "@/types";
+
 export default function AboutPage() {
+  const [types, setTypes] = useState<string[]>([
+    "fire",
+    "water",
+    "grass",
+    "electric",
+  ]);
+  const [search, setSearch] = useState<string>("");
+  const [total, setTotal] = useState<number>(1);
+  const [page, setPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(30);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(search);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(search);
+    }, 500); // Debounce delay
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
+  const getPokemons = async ({
+    queryKey,
+  }: {
+    queryKey: [string, string, number, number];
+  }): Promise<IPokemon["pokemon"]> => {
+    try {
+      const [, search, page] = queryKey;
+      const response = await api.get<IPokemon>("pokemon", {
+        params: {
+          query: search,
+          page: page,
+          pageSize: perPage,
+        },
+      });
+
+      const pokemon = response.data.pokemon;
+
+      setTotal(response.data.count);
+
+      return pokemon;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      throw error;
+    }
+  };
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["pokemons", debouncedSearchTerm, page, perPage],
+    queryFn: getPokemons,
+  });
+
+  console.log("Pokemons Data:", data);
+
   const [modeList, setModeList] = useState<"cards" | "list">("cards");
-  const arrayExample = Array.from({ length: 100 });
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
-
-  const ViewLists = () => {
-    return (
-      <>
-        <ListIcon />
-      </>
-    );
-  };
-
-  const ViewCards = () => {
-    return (
-      <>
-        <ListCardsIcon />
-      </>
-    );
-  };
 
   return (
     <div className="h-full w-full ">
@@ -52,13 +80,31 @@ export default function AboutPage() {
         </h1>
       </div>
       <div className="border-1 border-purple-600 flex items-center justify-between px-5">
-        <div>{searchInput}</div>
+        <div>
+          <Input
+            aria-label="Search"
+            classNames={{
+              inputWrapper: "bg-default-100",
+              input: "text-sm",
+            }}
+            labelPlacement="outside"
+            placeholder="Search..."
+            startContent={
+              <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
+            }
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <div>
           <Button
             isIconOnly
-            onClick={() =>
-              setModeList((prev) => (prev === "cards" ? "list" : "cards"))
-            }
+            type="button"
+            onPress={() => {
+              setModeList((prev) => (prev === "cards" ? "list" : "cards"));
+              setPerPage((prev) => (prev === 30 ? 10 : 30));
+            }}
           >
             {modeList === "cards" ? <ViewLists /> : <ViewCards />}
           </Button>
@@ -73,13 +119,17 @@ export default function AboutPage() {
               : "flex flex-col w-full",
           )}
         >
-          {arrayExample.map((_, i) => {
-            return modeList === "cards" ? (
-              <CardPoke key={i} />
-            ) : (
-              <ItemListPoke key={i} />
-            );
-          })}
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            data?.map((poke: PokemonItem, i: number) => {
+              return modeList === "cards" ? (
+                <CardPoke key={i} pokemon={poke} />
+              ) : (
+                <ItemListPoke key={i} pokemon={poke}/>
+              );
+            })
+          )}
         </div>
       </div>
       <Pagination
@@ -87,12 +137,28 @@ export default function AboutPage() {
           base: "m-0 w-full flex items-center justify-center gap-2",
         }}
         initialPage={1}
-        page={4}
-        total={10}
+        page={page}
+        total={Math.ceil(total / perPage)}
         onChange={(page) => {
-          console.log(page);
+          setPage(page);
         }}
       />
     </div>
   );
 }
+
+const ViewLists = () => {
+  return (
+    <>
+      <ListIcon />
+    </>
+  );
+};
+
+const ViewCards = () => {
+  return (
+    <>
+      <ListCardsIcon />
+    </>
+  );
+};

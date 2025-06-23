@@ -25,7 +25,7 @@ const createApiClient = (token?: string) => {
 };
 
 const storagedToken = getStoredToken();
-
+ console.log("API Base URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
 const api = createApiClient(storagedToken || "");
 
 export const setApiToken = (token: string) => {

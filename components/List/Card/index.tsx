@@ -1,5 +1,7 @@
+import { PokemonItem } from "@/types";
+
 /* eslint-disable @next/next/no-img-element */
-const CardPoke = () => {
+const CardPoke = ({ pokemon }: { pokemon: PokemonItem }) => {
   return (
     <div
       className="
@@ -13,9 +15,19 @@ const CardPoke = () => {
       <img
         alt="Pokemon"
         className="h-[100px] object-contain mb-2"
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/1.png"
+        src={pokemon.img1}
       />
-      <p className="text-gray-700 text-sm font-medium">Bulbasaur</p>
+      <p className="text-gray-700 text-sm font-medium">{pokemon.name}</p>
+      <div className="flex flex-row justify-between mt-2 text-center gap-1 w-full ">
+        {pokemon.types.map((type, index) => (
+          <p
+            key={index}
+            className={` text-sm font-medium border border-red-300 rounded-lg w-full pkeType${type}`}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </p>
+        ))}
+      </div>
     </div>
   );
 };

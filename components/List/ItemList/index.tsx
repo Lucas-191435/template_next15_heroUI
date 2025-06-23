@@ -1,13 +1,12 @@
-const ItemListPoke = () => {
+/* eslint-disable @next/next/no-img-element */
+import { PokemonItem } from "@/types";
+
+const ItemListPoke = ({ pokemon }: { pokemon: PokemonItem }) => {
   return (
-    <div className="flex flex-row items-center w-full h-[80px] bg-white rounded-lg shadow-md">
-      <img
-        alt="Pokemon"
-        className="h-[100px]"
-        src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/1.png"
-      />
-      {/* <h2 className="text-xl font-bold">Pokemon Name</h2> */}
-      <p className="text-gray-600">Bulbasaur</p>
+    <div className="pl-2 flex flex-row items-center w-full h-[80px] bg-white rounded-lg shadow-md">
+      <img alt="Pokemon" className="h-[60px]" src={pokemon.img1} />
+      <p className="text-gray-600">{pokemon.name}</p>
+      
     </div>
   );
 };

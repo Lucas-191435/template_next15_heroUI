@@ -2,3 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+.pkeTypefire {
+  @apply bg-red-500 text-white;
+}
+.pkeTypewater {
+  @apply bg-blue-500 text-white;
+}
+.pkeTypegrass {
+  @apply bg-green-500 text-white;
+}
+.pkeTypeelectric {
+  @apply bg-yellow-500 text-black;
+}
+.pkeTypeground {
+  @apply bg-[#8B6450] text-white;
+}
+.pkeTypeice {
+  @apply bg-cyan-500 text-white;
+}
+.pkeTyperock {
+  @apply bg-gray-500 text-white;
+}
+.pkeTypesteel {
+  @apply bg-red-700 text-white;
+}
+.pkeTypedragon {
+  @apply bg-purple-500 text-white;
+}
+.pkeTypedark {
+  @apply bg-black text-white;
+}
+.pkeTypefighting {
+  @apply bg-red-300 text-white;
+}
+.pkeTypeflying {
+  @apply bg-blue-500 text-white;
+}
+.pkeTypepoison {
+  @apply bg-purple-700 text-white;
+}
+.pkeTypepsychic {
+  @apply bg-pink-500 text-white;
+}
+.pkeTypebug {
+  @apply bg-green-700 text-white;
+}
+.pkeTypeghost {
+  @apply bg-indigo-700 text-white;
+}
+.pkeTypefairy {
+  @apply bg-pink-300 text-white;
+}
+.pkeTypenormal {
+  @apply bg-gray-200 text-black;
+}
