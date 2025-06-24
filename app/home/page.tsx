@@ -1,36 +1,35 @@
 "use client";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
 import { Pagination } from "@heroui/pagination";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-
+import { useQuery } from "@tanstack/react-query";
 
 import { title } from "@/components/primitives";
-import { ListCardsIcon, ListIcon, SearchIcon } from "@/components/icons";
 import ItemListPoke from "@/components/List/ItemList";
 import api from "@/services/api";
 import CardPoke from "@/components/List/Card";
 import { IPokemon, PokemonItem } from "@/types";
+import HomeFilter from "@/components/home/HomeFilter";
 
-export default function AboutPage() {
+export default function HomePage() {
   const [types, setTypes] = useState<string[]>([
-    "fire",
-    "water",
-    "grass",
-    "electric",
+    // "dark",
+    // "water",
   ]);
+  const [weight, setWeight] = useState<
+    "small" | "medium" | "large" | undefined
+  >();
   const [search, setSearch] = useState<string>("");
   const [total, setTotal] = useState<number>(1);
   const [page, setPage] = useState<number>(1);
   const [perPage, setPerPage] = useState<number>(30);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(search);
+  const [modeList, setModeList] = useState<"cards" | "list">("cards");
 
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(search);
-    }, 500); // Debounce delay
+    }, 500);
 
     return () => {
       clearTimeout(handler);
@@ -47,8 +46,10 @@ export default function AboutPage() {
       const response = await api.get<IPokemon>("pokemon", {
         params: {
           query: search,
+          types: [...types],
           page: page,
           pageSize: perPage,
+          weight: weight,
         },
       });
 
@@ -63,14 +64,10 @@ export default function AboutPage() {
     }
   };
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["pokemons", debouncedSearchTerm, page, perPage],
     queryFn: getPokemons,
   });
-
-  console.log("Pokemons Data:", data);
-
-  const [modeList, setModeList] = useState<"cards" | "list">("cards");
 
   return (
     <div className="h-full w-full ">
@@ -79,59 +76,37 @@ export default function AboutPage() {
           Pokedex
         </h1>
       </div>
-      <div className="border-1 border-purple-600 flex items-center justify-between px-5">
-        <div>
-          <Input
-            aria-label="Search"
-            classNames={{
-              inputWrapper: "bg-default-100",
-              input: "text-sm",
-            }}
-            labelPlacement="outside"
-            placeholder="Search..."
-            startContent={
-              <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-            }
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <HomeFilter
+        modeList={modeList}
+        search={search}
+        setModeList={setModeList}
+        setPerPage={setPerPage}
+        setSearch={setSearch}
+      />
+      {isLoading ? (
+        <div className="text-center w-full h-full border border-red-500 flex items-center justify-center">
+          <p> Loading...</p>
         </div>
-        <div>
-          <Button
-            isIconOnly
-            type="button"
-            onPress={() => {
-              setModeList((prev) => (prev === "cards" ? "list" : "cards"));
-              setPerPage((prev) => (prev === 30 ? 10 : 30));
-            }}
+      ) : (
+        <div className="flex justify-center border1 border-blue-600">
+          <div
+            className={clsx(
+              "mt-2 gap-5 px-8 py-8 md:py-10 m-auto",
+              modeList === "cards"
+                ? "grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 w-full border-1 border-green-600"
+                : "flex flex-col w-full",
+            )}
           >
-            {modeList === "cards" ? <ViewLists /> : <ViewCards />}
-          </Button>
-        </div>
-      </div>
-      <div className="flex justify-center border1 border-blue-600">
-        <div
-          className={clsx(
-            "mt-2 gap-5 px-8 py-8 md:py-10 m-auto",
-            modeList === "cards"
-              ? "grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 w-full border-1 border-green-600"
-              : "flex flex-col w-full",
-          )}
-        >
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : (
-            data?.map((poke: PokemonItem, i: number) => {
+            {data?.map((poke: PokemonItem, i: number) => {
               return modeList === "cards" ? (
                 <CardPoke key={i} pokemon={poke} />
               ) : (
-                <ItemListPoke key={i} pokemon={poke}/>
+                <ItemListPoke key={i} pokemon={poke} />
               );
-            })
-          )}
+            })}
+          </div>
         </div>
-      </div>
+      )}
       <Pagination
         classNames={{
           base: "m-0 w-full flex items-center justify-center gap-2",
@@ -146,19 +121,3 @@ export default function AboutPage() {
     </div>
   );
 }
-
-const ViewLists = () => {
-  return (
-    <>
-      <ListIcon />
-    </>
-  );
-};
-
-const ViewCards = () => {
-  return (
-    <>
-      <ListCardsIcon />
-    </>
-  );
-};

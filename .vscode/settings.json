@@ -4,4 +4,11 @@
   "window.zoomLevel": 0,
   "debug.console.fontSize": 14,
   "terminal.integrated.fontSize": 12,
+  // Enable ESLint for JavaScript and TypeScript files
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.fixAll.eslint": true
+  }
 }

@@ -232,3 +232,25 @@ export const ListCardsIcon = (props: IconSvgProps) => (
     <rect height="8" rx="1" width="8" x="13" y="13" />
   </svg>
 );
+
+export const FilterIcon = ({
+  size = 24,
+  width,
+  height,
+  ...props
+}: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    focusable="false"
+    width={size || width}
+    height={size || height}
+    role="presentation"
+    viewBox="0 0 24 24"
+    {...props}
+  >
+    <path
+      fill="currentColor"
+      d="M3 5a1 1 0 0 1 1-1h16a1 1 0 0 1 .77 1.64l-6.26 7.82V20a1 1 0 0 1-1.45.9l-4-2A1 1 0 0 1 9 18v-4.54L2.23 6.64A1 1 0 0 1 3 5z"
+    />
+  </svg>
+)

@@ -5,13 +5,16 @@ const CardPoke = ({ pokemon }: { pokemon: PokemonItem }) => {
   return (
     <div
       className="
+      cursor-pointer
     mx-auto
     flex flex-col items-center justify-center
     w-full max-w-[300px] sm:w-[150px] h-[200px]
     bg-white rounded-lg shadow-md
     p-4 transition hover:scale-105 hover:shadow-lg
+    relative
   "
     >
+      <p className="text-gray-800 absolute top-0 left-1">#{pokemon.number}</p>
       <img
         alt="Pokemon"
         className="h-[100px] object-contain mb-2"
