@@ -8,7 +8,6 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/react";
-import { useQueryClient } from "@tanstack/react-query";
 
 import SelectTypeFilter from "./SelectTypeFilter";
 
@@ -25,7 +24,8 @@ type HomerFilterProps = {
   setModeList: Dispatch<React.SetStateAction<"cards" | "list">>;
   setSearch: Dispatch<React.SetStateAction<string>>;
   setPerPage: Dispatch<React.SetStateAction<number>>;
-  setTypes: Dispatch<React.SetStateAction<string[]>>;
+  setObjFilter: Dispatch<React.SetStateAction<objFilter | undefined>>;
+  objFilter?: objFilter;
 };
 
 type PokemonTypeSelect = PokemonType & {
@@ -49,7 +49,8 @@ const HomeFilter = ({
   setPerPage,
   modeList,
   setModeList,
-  setTypes,
+  setObjFilter,
+  objFilter,
 }: HomerFilterProps) => {
   const [open, setOpen] = useState(false);
   const handleOpenModal = () => {
@@ -63,7 +64,8 @@ const HomeFilter = ({
     <>
       <ModalFilter
         isOpen={open}
-        setTypes={setTypes}
+        objFilter={objFilter}
+        setObjFilter={setObjFilter}
         title="Filtro"
         onClose={handleCloseModal}
       />
@@ -115,7 +117,8 @@ type ModalFilterProps = {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  setTypes: Dispatch<React.SetStateAction<string[]>>;
+  objFilter?: objFilter;
+  setObjFilter: Dispatch<React.SetStateAction<objFilter | undefined>>;
 };
 
 type objFilter = {
@@ -126,10 +129,10 @@ export function ModalFilter({
   isOpen,
   onClose,
   title,
-  setTypes,
+  setObjFilter,
+  objFilter,
 }: ModalFilterProps) {
   const [objFilterTemp, setObjFilterTemp] = useState<objFilter>();
-  const [objFilter, setObjFilter] = useState<objFilter>();
   const [pkTypeSelect, setPkTypeSelect] =
     useState<PokemonTypeSelect[]>(pokeTypesSelect);
   const [pkTypeSelectTemp, setPkTypeSelectTemp] =
@@ -142,69 +145,19 @@ export function ModalFilter({
     }
   }, [isOpen]);
 
+  const handleTempFilter = (
+    newObjFilterTemp: objFilter,
+    update: PokemonTypeSelect[],
+  ) => {
+    setObjFilterTemp(newObjFilterTemp);
+    setPkTypeSelectTemp(update);
+  };
+
   const handleS = () => {
     setObjFilter(objFilterTemp);
-    setPkTypeSelectTemp(pkTypeSelectTemp);
-  };
-
-  const queryClient = useQueryClient();
-  const [primeiraMetade, setPrimeiraMetade] = useState<PokemonTypeSelect[]>([]);
-  const [segundaMetade, setSegundaMetade] = useState<PokemonTypeSelect[]>([]);
-
-  useEffect(() => {
-    const middleIndex = Math.ceil(pokeTypesSelect.length / 2);
-    const primeiraMetadeTmp = pkTypeSelect.slice(0, middleIndex);
-    const segundaMetadeTmp = pkTypeSelect.slice(middleIndex);
-
-    setPrimeiraMetade(primeiraMetadeTmp);
-    setSegundaMetade(segundaMetadeTmp);
-  }, [pkTypeSelect]);
-
-  const handlePress = (
-    buttonType: "weekness" | "strenght" | "type",
-    type: PokemonTypeSelect,
-  ) => {
-    const findProp = (
-      btnType: "weekness" | "strenght" | "type",
-    ): "isSelectedWeakness" | "isSelectedType" | "isSelectedResistant" => {
-      if (btnType === "weekness") {
-        return "isSelectedWeakness";
-      } else if (btnType === "strenght") {
-        return "isSelectedResistant";
-      } else {
-        return "isSelectedType";
-      }
-    };
-
-    const foundProp = findProp(buttonType);
-
-    const update = pkTypeSelect.map((typ) =>
-      typ.key === type.key ? { ...typ, [foundProp]: !typ[foundProp] } : typ,
-    );
-
-    setPkTypeSelect(update);
-  };
-
-  const handleSubmit = () => {
-    const result = pkTypeSelect.map((type) => {
-      const resultType = type.isSelectedType ? [type.key] : [];
-      const resultResistant = type.isSelectedResistant ? type.resistantTo : [];
-      const resultWeekness = type.isSelectedWeakness ? type.weakAgainst : [];
-
-      return [...resultType, ...resultResistant, ...resultWeekness];
-    });
-
-    const resultTmp = result.flat();
-
-    console.log("resultTmp", resultTmp);
-
-    const semRepetidos = [...new Set(resultTmp)];
-
-    console.log("semRepetidos", semRepetidos);
-    setTypes(semRepetidos);
+    setPkTypeSelect(pkTypeSelectTemp);
 
     onClose();
-    queryClient.invalidateQueries({ queryKey: ["pokemons"] });
   };
 
   return (
@@ -215,100 +168,23 @@ export function ModalFilter({
           <ModalBody className="grid grid-cols-2 gap-4">
             <div>
               <h2>Primeira Metade</h2>
-              <div className="flex justify-end gap-4 px-1">
-                <h4>
-                  <b>T</b>: Tipo
-                </h4>
-                <h4>
-                  <b>F</b>: Fraqueza
-                </h4>
-                <h4>
-                  <b>R</b>: Resistência
-                </h4>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  {primeiraMetade.map((type) => (
-                    <div
-                      key={type.key}
-                      className="flex flex-nowrap justify-between w-full border-1 border-red-500 text-center"
-                    >
-                      <h4
-                        className={`p-1 text-sm font-medium border border-red-300 rounded-lg w-full pkeType${type.key}`}
-                      >
-                        {type.label}
-                      </h4>
-                      <PokemonTypeButton
-                        isType="type"
-                        selected={type.isSelectedType}
-                        type={type}
-                        onToggle={() => {
-                          handlePress("type", type);
-                        }}
-                      />
-                      <PokemonTypeButton
-                        isType="weekness"
-                        selected={type.isSelectedWeakness}
-                        type={type}
-                        onToggle={() => {
-                          handlePress("weekness", type);
-                        }}
-                      />
-                      <PokemonTypeButton
-                        isType="strenght"
-                        selected={type.isSelectedResistant}
-                        type={type}
-                        onToggle={() => {
-                          handlePress("strenght", type);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                <div>
-                  {segundaMetade.map((type) => (
-                    <div
-                      key={type.key}
-                      className="flex flex-nowrap justify-between w-full border-1 border-red-500 text-center"
-                    >
-                      <h4
-                        className={`p-1 text-sm font-medium border border-red-300 rounded-lg w-full pkeType${type.key}`}
-                      >
-                        {type.label}
-                      </h4>
-                      <PokemonTypeButton
-                        isType="type"
-                        selected={type.isSelectedType}
-                        type={type}
-                        onToggle={() => {
-                          handlePress("type", type);
-                        }}
-                      />
-                      <PokemonTypeButton
-                        isType="weekness"
-                        selected={type.isSelectedWeakness}
-                        type={type}
-                        onToggle={() => {
-                          handlePress("weekness", type);
-                        }}
-                      />
-                      <PokemonTypeButton
-                        isType="strenght"
-                        selected={type.isSelectedResistant}
-                        type={type}
-                        onToggle={() => {
-                          handlePress("strenght", type);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <SelectTypeFilter
+                handleTempFilter={handleTempFilter}
+                objFilter={objFilterTemp}
+                pkTypeSelect={pkTypeSelectTemp}
+                setObjFilter={setObjFilterTemp}
+                setPkTypeSelect={setPkTypeSelectTemp}
+              />
             </div>
             <div>
               <h2>Segunda Metade</h2>
-              <SelectTypeFilter />
+              {/* <SelectTypeFilter
+                handleTempFilter={handleTempFilter}
+                objFilter={objFilterTemp}
+                pkTypeSelect={pkTypeSelectTemp}
+                setObjFilter={setObjFilterTemp}
+                setPkTypeSelect={setPkTypeSelectTemp}
+              /> */}
             </div>
           </ModalBody>
           <ModalFooter>
@@ -325,50 +201,14 @@ export function ModalFilter({
                 });
 
                 setPkTypeSelect(update);
-                setTypes([]);
-                onClose();
               }}
             >
               Limpar
             </Button>
-            <Button onPress={handleSubmit}>Confirmar</Button>
+            <Button onPress={handleS}>Confirmar</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
     </div>
   );
 }
-
-const PokemonTypeButton = ({
-  type,
-  selected,
-  onToggle,
-  isType,
-}: {
-  type: { key: string; label: string };
-  selected: boolean;
-  onToggle: (key: string) => void;
-  isType: "weekness" | "strenght" | "type";
-}) => {
-  const handleInputType = (type: string) => {
-    if (type === "type") {
-      return "T";
-    } else if (type === "weekness") {
-      return "F";
-    } else {
-      return "R";
-    }
-  };
-
-  return (
-    <Button
-      isIconOnly
-      className={`px-4 py-2 rounded-full text-white transition border-1 border-red-500 ml-2
-        ${selected ? "bg-blue-600" : "bg-white text-black "}`}
-      type="button"
-      onPress={() => onToggle(type.key)}
-    >
-      {handleInputType(isType)}
-    </Button>
-  );
-};

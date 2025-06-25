@@ -18,17 +18,30 @@ const pokeTypesSelect = pokemonTypes.map((type) => {
   };
 });
 
-type SelectTypeFilterProps = {
-  pkTypeSelectTemp: PokemonTypeSelect[];
-  setPkTypeSelectTemp: Dispatch<React.SetStateAction<PokemonTypeSelect[]>>;
+type objFilter = {
+  type: string[];
+  weight?: "small" | "medium" | "large";
 };
 
-const SelectTypeFilter = () => {
+type SelectTypeFilterProps = {
+  objFilter?: objFilter;
+  pkTypeSelect: PokemonTypeSelect[];
+  setPkTypeSelect: Dispatch<React.SetStateAction<PokemonTypeSelect[]>>;
+  setObjFilter: Dispatch<React.SetStateAction<objFilter | undefined>>;
+  handleTempFilter: (
+    newObjFilterTemp: objFilter,
+    update: PokemonTypeSelect[],
+  ) => void;
+};
+
+const SelectTypeFilter = ({
+  objFilter,
+  pkTypeSelect,
+  setPkTypeSelect,
+  handleTempFilter,
+}: SelectTypeFilterProps) => {
   const [primeiraMetade, setPrimeiraMetade] = useState<PokemonTypeSelect[]>([]);
   const [segundaMetade, setSegundaMetade] = useState<PokemonTypeSelect[]>([]);
-
-  const [pkTypeSelect, setPkTypeSelect] =
-    useState<PokemonTypeSelect[]>(pokeTypesSelect);
 
   useEffect(() => {
     const middleIndex = Math.ceil(pokeTypesSelect.length / 2);
@@ -62,10 +75,8 @@ const SelectTypeFilter = () => {
     );
 
     setPkTypeSelect(update);
-  };
 
-  const handleSubmit = () => {
-    const result = pkTypeSelect.map((type) => {
+    const result = update.map((type) => {
       const resultType = type.isSelectedType ? [type.key] : [];
       const resultResistant = type.isSelectedResistant ? type.resistantTo : [];
       const resultWeekness = type.isSelectedWeakness ? type.weakAgainst : [];
@@ -75,14 +86,11 @@ const SelectTypeFilter = () => {
 
     const resultTmp = result.flat();
 
-    console.log("resultTmp", resultTmp);
-
     const semRepetidos = [...new Set(resultTmp)];
 
-    console.log("semRepetidos", semRepetidos);
-    // setTypes(semRepetidos);
+    const newObjFilterTemp = { ...objFilter, type: semRepetidos };
 
-    // onClose();
+    handleTempFilter(newObjFilterTemp, update);
   };
 
   return (

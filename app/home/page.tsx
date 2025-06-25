@@ -10,7 +10,10 @@ import api from "@/services/api";
 import CardPoke from "@/components/List/Card";
 import { IPokemon, PokemonItem } from "@/types";
 import HomeFilter from "@/components/home/HomeFilter";
-
+type ObjFilter = {
+  type: string[];
+  weight?: "small" | "medium" | "large";
+};
 export default function HomePage() {
   const [types, setTypes] = useState<string[]>([
     // "dark",
@@ -25,6 +28,7 @@ export default function HomePage() {
   const [perPage, setPerPage] = useState<number>(30);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(search);
   const [modeList, setModeList] = useState<"cards" | "list">("cards");
+  const [objFilter, setObjFilter] = useState<ObjFilter>();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -39,14 +43,15 @@ export default function HomePage() {
   const getPokemons = async ({
     queryKey,
   }: {
-    queryKey: [string, string, number, number, string[]];
+    queryKey: [string, string, number, number, ObjFilter | undefined];
   }): Promise<IPokemon["pokemon"]> => {
     try {
-      const [, search, page] = queryKey;
+      const [, search, page, perPage, objFilter] = queryKey;
+
       const response = await api.get<IPokemon>("pokemon", {
         params: {
           query: search,
-          types: [...types],
+          types: (objFilter?.type?.length ?? 0) > 0 ? objFilter?.type : [],
           page: page,
           pageSize: perPage,
           weight: weight,
@@ -65,7 +70,7 @@ export default function HomePage() {
   };
 
   const { data, isLoading } = useQuery({
-    queryKey: ["pokemons", debouncedSearchTerm, page, perPage, types],
+    queryKey: ["pokemons", debouncedSearchTerm, page, perPage, objFilter],
     queryFn: getPokemons,
   });
 
@@ -78,11 +83,12 @@ export default function HomePage() {
       </div>
       <HomeFilter
         modeList={modeList}
+        objFilter={objFilter}
         search={search}
         setModeList={setModeList}
+        setObjFilter={setObjFilter}
         setPerPage={setPerPage}
         setSearch={setSearch}
-        setTypes={setTypes}
       />
       {isLoading ? (
         <div className="text-center w-full h-full border border-red-500 flex items-center justify-center">
