@@ -39,7 +39,7 @@ export default function HomePage() {
   const getPokemons = async ({
     queryKey,
   }: {
-    queryKey: [string, string, number, number];
+    queryKey: [string, string, number, number, string[]];
   }): Promise<IPokemon["pokemon"]> => {
     try {
       const [, search, page] = queryKey;
@@ -65,7 +65,7 @@ export default function HomePage() {
   };
 
   const { data, isLoading } = useQuery({
-    queryKey: ["pokemons", debouncedSearchTerm, page, perPage],
+    queryKey: ["pokemons", debouncedSearchTerm, page, perPage, types],
     queryFn: getPokemons,
   });
 
@@ -82,6 +82,7 @@ export default function HomePage() {
         setModeList={setModeList}
         setPerPage={setPerPage}
         setSearch={setSearch}
+        setTypes={setTypes}
       />
       {isLoading ? (
         <div className="text-center w-full h-full border border-red-500 flex items-center justify-center">

@@ -8,6 +8,9 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/react";
+import { useQueryClient } from "@tanstack/react-query";
+
+import SelectTypeFilter from "./SelectTypeFilter";
 
 import {
   FilterIcon,
@@ -22,6 +25,7 @@ type HomerFilterProps = {
   setModeList: Dispatch<React.SetStateAction<"cards" | "list">>;
   setSearch: Dispatch<React.SetStateAction<string>>;
   setPerPage: Dispatch<React.SetStateAction<number>>;
+  setTypes: Dispatch<React.SetStateAction<string[]>>;
 };
 
 type PokemonTypeSelect = PokemonType & {
@@ -45,6 +49,7 @@ const HomeFilter = ({
   setPerPage,
   modeList,
   setModeList,
+  setTypes,
 }: HomerFilterProps) => {
   const [open, setOpen] = useState(false);
   const handleOpenModal = () => {
@@ -56,7 +61,12 @@ const HomeFilter = ({
 
   return (
     <>
-      <ModalFilter isOpen={open} title="Filtro" onClose={handleCloseModal} />
+      <ModalFilter
+        isOpen={open}
+        setTypes={setTypes}
+        title="Filtro"
+        onClose={handleCloseModal}
+      />
       <div className="border-1 border-purple-600 flex items-center justify-between px-5">
         <div>
           <Input
@@ -105,14 +115,41 @@ type ModalFilterProps = {
   isOpen: boolean;
   onClose: () => void;
   title: string;
+  setTypes: Dispatch<React.SetStateAction<string[]>>;
 };
 
-export function ModalFilter({ isOpen, onClose, title }: ModalFilterProps) {
-  const [primeiraMetade, setPrimeiraMetade] = useState<PokemonTypeSelect[]>([]);
-  const [segundaMetade, setSegundaMetade] = useState<PokemonTypeSelect[]>([]);
-
+type objFilter = {
+  type: string[];
+  weight?: "small" | "medium" | "large";
+};
+export function ModalFilter({
+  isOpen,
+  onClose,
+  title,
+  setTypes,
+}: ModalFilterProps) {
+  const [objFilterTemp, setObjFilterTemp] = useState<objFilter>();
+  const [objFilter, setObjFilter] = useState<objFilter>();
   const [pkTypeSelect, setPkTypeSelect] =
     useState<PokemonTypeSelect[]>(pokeTypesSelect);
+  const [pkTypeSelectTemp, setPkTypeSelectTemp] =
+    useState<PokemonTypeSelect[]>(pokeTypesSelect);
+
+  useEffect(() => {
+    if (isOpen) {
+      setObjFilterTemp(objFilter);
+      setPkTypeSelectTemp(pkTypeSelect);
+    }
+  }, [isOpen]);
+
+  const handleS = () => {
+    setObjFilter(objFilterTemp);
+    setPkTypeSelectTemp(pkTypeSelectTemp);
+  };
+
+  const queryClient = useQueryClient();
+  const [primeiraMetade, setPrimeiraMetade] = useState<PokemonTypeSelect[]>([]);
+  const [segundaMetade, setSegundaMetade] = useState<PokemonTypeSelect[]>([]);
 
   useEffect(() => {
     const middleIndex = Math.ceil(pokeTypesSelect.length / 2);
@@ -148,6 +185,28 @@ export function ModalFilter({ isOpen, onClose, title }: ModalFilterProps) {
     setPkTypeSelect(update);
   };
 
+  const handleSubmit = () => {
+    const result = pkTypeSelect.map((type) => {
+      const resultType = type.isSelectedType ? [type.key] : [];
+      const resultResistant = type.isSelectedResistant ? type.resistantTo : [];
+      const resultWeekness = type.isSelectedWeakness ? type.weakAgainst : [];
+
+      return [...resultType, ...resultResistant, ...resultWeekness];
+    });
+
+    const resultTmp = result.flat();
+
+    console.log("resultTmp", resultTmp);
+
+    const semRepetidos = [...new Set(resultTmp)];
+
+    console.log("semRepetidos", semRepetidos);
+    setTypes(semRepetidos);
+
+    onClose();
+    queryClient.invalidateQueries({ queryKey: ["pokemons"] });
+  };
+
   return (
     <div className="p-8">
       <Modal isOpen={isOpen} placement="center" onClose={onClose}>
@@ -156,7 +215,18 @@ export function ModalFilter({ isOpen, onClose, title }: ModalFilterProps) {
           <ModalBody className="grid grid-cols-2 gap-4">
             <div>
               <h2>Primeira Metade</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex justify-end gap-4 px-1">
+                <h4>
+                  <b>T</b>: Tipo
+                </h4>
+                <h4>
+                  <b>F</b>: Fraqueza
+                </h4>
+                <h4>
+                  <b>R</b>: Resistência
+                </h4>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   {primeiraMetade.map((type) => (
                     <div
@@ -211,7 +281,7 @@ export function ModalFilter({ isOpen, onClose, title }: ModalFilterProps) {
                         isType="type"
                         selected={type.isSelectedType}
                         type={type}
-                        onToggle={(key) => {
+                        onToggle={() => {
                           handlePress("type", type);
                         }}
                       />
@@ -219,7 +289,7 @@ export function ModalFilter({ isOpen, onClose, title }: ModalFilterProps) {
                         isType="weekness"
                         selected={type.isSelectedWeakness}
                         type={type}
-                        onToggle={(key) => {
+                        onToggle={() => {
                           handlePress("weekness", type);
                         }}
                       />
@@ -227,7 +297,7 @@ export function ModalFilter({ isOpen, onClose, title }: ModalFilterProps) {
                         isType="strenght"
                         selected={type.isSelectedResistant}
                         type={type}
-                        onToggle={(key) => {
+                        onToggle={() => {
                           handlePress("strenght", type);
                         }}
                       />
@@ -238,6 +308,7 @@ export function ModalFilter({ isOpen, onClose, title }: ModalFilterProps) {
             </div>
             <div>
               <h2>Segunda Metade</h2>
+              <SelectTypeFilter />
             </div>
           </ModalBody>
           <ModalFooter>
@@ -254,11 +325,13 @@ export function ModalFilter({ isOpen, onClose, title }: ModalFilterProps) {
                 });
 
                 setPkTypeSelect(update);
+                setTypes([]);
+                onClose();
               }}
             >
               Limpar
             </Button>
-            <Button onPress={onClose}>Confirmar</Button>
+            <Button onPress={handleSubmit}>Confirmar</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
