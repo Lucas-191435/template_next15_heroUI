@@ -10,6 +10,7 @@ import {
 
 import { objFilter, PokemonTypeSelect } from "./types";
 import SelectTypeFilter from "./SelectTypeFilter";
+import SelectWeightFilter from "./SelectWeightFilter";
 
 import pokemonTypes from "@/utils/pokemonTypes";
 
@@ -83,13 +84,10 @@ export function ModalFilter({
             </div>
             <div>
               <h2>Segunda Metade</h2>
-              {/* <SelectTypeFilter
-                handleTempFilter={handleTempFilter}
+              <SelectWeightFilter
                 objFilter={objFilterTemp}
-                pkTypeSelect={pkTypeSelectTemp}
                 setObjFilter={setObjFilterTemp}
-                setPkTypeSelect={setPkTypeSelectTemp}
-              /> */}
+              />
             </div>
           </ModalBody>
           <ModalFooter>
@@ -106,6 +104,10 @@ export function ModalFilter({
                 });
 
                 setPkTypeSelectTemp(update);
+                setObjFilterTemp({
+                  type: [],
+                  weight: undefined,
+                });
               }}
             >
               Limpar

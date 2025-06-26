@@ -7,6 +7,6 @@ export type PokemonTypeSelect = PokemonType & {
 };
 
 export type objFilter = {
-  type: string[];
+  type?: string[];
   weight?: "small" | "medium" | "large";
 };
