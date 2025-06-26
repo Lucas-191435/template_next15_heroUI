@@ -1,13 +1,9 @@
 import { Dispatch, useEffect, useState } from "react";
 import { Button } from "@heroui/button";
 
-import pokemonTypes, { PokemonType } from "@/utils/pokemonTypes";
+import { objFilter, PokemonTypeSelect } from "./types";
 
-type PokemonTypeSelect = PokemonType & {
-  isSelectedWeakness: boolean;
-  isSelectedType: boolean;
-  isSelectedResistant: boolean;
-};
+import pokemonTypes from "@/utils/pokemonTypes";
 
 const pokeTypesSelect = pokemonTypes.map((type) => {
   return {
@@ -17,11 +13,6 @@ const pokeTypesSelect = pokemonTypes.map((type) => {
     isSelectedResistant: false,
   };
 });
-
-type objFilter = {
-  type: string[];
-  weight?: "small" | "medium" | "large";
-};
 
 type SelectTypeFilterProps = {
   objFilter?: objFilter;
