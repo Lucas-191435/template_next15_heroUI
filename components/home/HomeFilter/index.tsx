@@ -153,7 +153,7 @@ export function ModalFilter({
     setPkTypeSelectTemp(update);
   };
 
-  const handleS = () => {
+  const handleApplyFilter = () => {
     setObjFilter(objFilterTemp);
     setPkTypeSelect(pkTypeSelectTemp);
 
@@ -200,12 +200,12 @@ export function ModalFilter({
                   };
                 });
 
-                setPkTypeSelect(update);
+                setPkTypeSelectTemp(update);
               }}
             >
               Limpar
             </Button>
-            <Button onPress={handleS}>Confirmar</Button>
+            <Button onPress={handleApplyFilter}>Confirmar</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
